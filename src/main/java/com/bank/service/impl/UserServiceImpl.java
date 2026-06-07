@@ -1,6 +1,8 @@
 package com.bank.service.impl;
 
+import com.bank.common.SessionManager;
 import com.bank.dao.SysUserMapper;
+import com.bank.dto.LoginDTO;
 import com.bank.dto.RegisterDTO;
 import com.bank.entity.SysUser;
 import com.bank.service.AccountService;
@@ -21,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private SessionManager sessionManager;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -57,5 +62,29 @@ public class UserServiceImpl implements UserService {
     @Override
     public SysUser getById(Long id) {
         return sysUserMapper.selectById(id);
+    }
+
+    @Override
+    public String login(LoginDTO dto) {
+        log.info("用户登录请求，账号：{}", dto.getAccount());
+
+        SysUser user = sysUserMapper.selectByPhone(dto.getAccount());
+        if (user == null) {
+            user = sysUserMapper.selectByIdCard(dto.getAccount());
+        }
+
+        if (user == null) {
+            log.warn("账号不存在：{}", dto.getAccount());
+            throw new RuntimeException("账号或密码错误");
+        }
+
+        if (!dto.getTradePassword().equals(user.getTradePassword())) {
+            log.warn("密码错误，账号：{}", dto.getAccount());
+            throw new RuntimeException("账号或密码错误");
+        }
+
+        String token = sessionManager.createSession(user);
+        log.info("用户登录成功，用户ID：{}", user.getId());
+        return token;
     }
 }
