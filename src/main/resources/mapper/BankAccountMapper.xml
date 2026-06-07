@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bank.dao.BankAccountMapper">
+
+    <resultMap id="BaseResultMap" type="com.bank.entity.BankAccount">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="account_no" property="accountNo"/>
+        <result column="balance" property="balance"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, account_no, balance, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.entity.BankAccount" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bank_account (user_id, account_no, balance, status)
+        VALUES (#{userId}, #{accountNo}, #{balance}, #{status})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bank_account
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bank_account
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByAccountNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bank_account
+        WHERE account_no = #{accountNo}
+    </select>
+
+    <update id="updateBalance">
+        UPDATE bank_account
+        SET balance = #{balance}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
